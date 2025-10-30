@@ -109,9 +109,23 @@ class RegisterView extends GetView<RegisterController> {
                   const SizedBox(height: 20),
 
                   // Create Account
-                  ElevatedButton(
-                    onPressed: controller.createAccount,
-                    child: const Text("Create Account"),
+                  Obx(
+                    () => ElevatedButton(
+                      onPressed:
+                          controller.isLoading.value
+                              ? null
+                              : controller.createAccount,
+                      child:
+                          controller.isLoading.value
+                              ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                              : const Text("Create Account"),
+                    ),
                   ),
                   const SizedBox(height: 16),
 

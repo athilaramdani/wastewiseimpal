@@ -122,7 +122,7 @@ class HomeView extends GetView<HomeController> {
               _actionCard(
                 icon: Icons.report_gmailerrorred_outlined,
                 title: "Report Waste",
-                subtitle: "Laporkan tumpukan sampah di sekitar kamu",
+                subtitle: "Report waste in your area",
                 onTap: controller.openReportWaste,
               ),
               const SizedBox(height: 12),

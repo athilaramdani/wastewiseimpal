@@ -79,9 +79,21 @@ class LoginView extends GetView<LoginController> {
                   const SizedBox(height: 20),
 
                   // Sign in button
-                  ElevatedButton(
-                    onPressed: controller.signIn,
-                    child: const Text("Sign In"),
+                  Obx(
+                    () => ElevatedButton(
+                      onPressed:
+                          controller.isLoading.value ? null : controller.signIn,
+                      child:
+                          controller.isLoading.value
+                              ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                              : const Text("Sign In"),
+                    ),
                   ),
                   const SizedBox(height: 16),
 

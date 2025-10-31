@@ -25,11 +25,11 @@ class RegisterController extends GetxController {
     final confirm = confirmC.text;
 
     if (email.isEmpty || pass.isEmpty) {
-      Get.snackbar('Error', 'Email dan password wajib diisi');
+      Get.snackbar('Error', 'Email and password are required');
       return;
     }
     if (pass != confirm) {
-      Get.snackbar('Error', 'Konfirmasi password tidak sama');
+      Get.snackbar('Error', 'Password confirmation does not match');
       return;
     }
 
@@ -45,15 +45,15 @@ class RegisterController extends GetxController {
         Get.offAllNamed(Routes.HOME);
       } else {
         Get.snackbar(
-          'Registrasi berhasil',
-          'Silakan cek email untuk verifikasi.',
+          'Registration Successful',
+          'Please check your email for verification.',
         );
         Get.offAllNamed(Routes.LOGIN);
       }
     } on AuthException catch (e) {
-      Get.snackbar('Registrasi gagal', e.message);
+      Get.snackbar('Registration Failed', e.message);
     } catch (_) {
-      Get.snackbar('Registrasi gagal', 'Terjadi kesalahan tak terduga');
+      Get.snackbar('Registration Failed', 'An unexpected error occurred');
     } finally {
       isLoading.value = false;
     }

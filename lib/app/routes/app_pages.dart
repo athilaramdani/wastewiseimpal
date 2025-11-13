@@ -1,10 +1,13 @@
 import 'package:get/get.dart';
+
 import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_view.dart';
 import '../modules/login/bindings/login_binding.dart';
 import '../modules/login/views/login_view.dart';
 import '../modules/register/bindings/register_binding.dart';
 import '../modules/register/views/register_view.dart';
+import '../modules/reportwaste/bindings/reportwaste_binding.dart';
+import '../modules/reportwaste/views/reportwaste_view.dart';
 
 part 'app_routes.dart';
 
@@ -28,6 +31,11 @@ class AppPages {
       name: _Paths.REGISTER,
       page: () => const RegisterView(),
       binding: RegisterBinding(),
+    ),
+    GetPage(
+      name: _Paths.REPORTWASTE,
+      page: () => const ReportwasteView(),
+      binding: ReportwasteBinding(),
     ),
   ];
 }

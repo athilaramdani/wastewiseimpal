@@ -10,7 +10,7 @@ class ReportDetailView extends GetView<ReportDetailController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Report Detail'), centerTitle: true),
+      appBar: AppBar(title: const Text('Report Detail',style: TextStyle(fontWeight: FontWeight.w800)), centerTitle: true),
       body: SafeArea(
         child: Obx(() {
           final report = controller.report.value;

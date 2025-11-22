@@ -11,7 +11,7 @@ class HistoryView extends GetView<HistoryController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Report History'), centerTitle: true),
+      appBar: AppBar(title: const Text('Report History', style: TextStyle(fontWeight: FontWeight.w800)), centerTitle: true),
       body: SafeArea(
         child: Obx(() {
           if (controller.isLoading.value && controller.reports.isEmpty) {

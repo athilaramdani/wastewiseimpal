@@ -20,6 +20,8 @@ class ReportwasteView extends GetView<ReportwasteController> {
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
+          leadingWidth: kToolbarHeight,
+          leading: const SizedBox(width: kToolbarHeight),
           centerTitle: true,
           title: Row(
             mainAxisAlignment: MainAxisAlignment.center,

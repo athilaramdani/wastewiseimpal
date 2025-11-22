@@ -1,5 +1,13 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+import '../../../core/supabase_client.dart';
+
+import '../../../routes/app_pages.dart';
 
 class ReportwasteController extends GetxController {
   // Form controllers
@@ -24,6 +32,20 @@ class ReportwasteController extends GetxController {
   // Bottom navigation index
   final currentIndex = 2.obs; // Report tab
 
+  // Selected image attachment
+  final selectedImage = Rxn<XFile>();
+  final ImagePicker _picker = ImagePicker();
+  final isSubmitting = false.obs;
+
+  static const _mimeByExtension = {
+    'jpg': 'image/jpeg',
+    'jpeg': 'image/jpeg',
+    'png': 'image/png',
+    'heic': 'image/heic',
+    'gif': 'image/gif',
+    'webp': 'image/webp',
+  };
+
   @override
   void onClose() {
     titleController.dispose();
@@ -35,7 +57,7 @@ class ReportwasteController extends GetxController {
   void onTapBottomNav(int index) {
     switch (index) {
       case 0:
-        Get.offNamed('/home');
+        Get.offNamed(Routes.HOME);
         break;
       case 1:
         Get.snackbar(
@@ -70,7 +92,28 @@ class ReportwasteController extends GetxController {
     }
   }
 
-  void submitReport() {
+  Future<void> pickImage() async {
+    try {
+      final image = await _picker.pickImage(source: ImageSource.gallery);
+      if (image != null) {
+        selectedImage.value = image;
+      }
+    } catch (_) {
+      Get.snackbar('Error', 'Failed to pick image');
+    }
+  }
+
+  void removeImage() {
+    selectedImage.value = null;
+  }
+
+  void openHistory() {
+    Get.toNamed(Routes.HISTORY);
+  }
+
+  Future<void> submitReport() async {
+    if (isSubmitting.value) return;
+
     // Validate all fields
     if (titleController.text.trim().isEmpty) {
       Get.snackbar('Error', 'Report title is required');
@@ -92,15 +135,70 @@ class ReportwasteController extends GetxController {
       return;
     }
 
-    // All validation passed
-    Get.snackbar('Success', 'Waste report submitted successfully');
+    final image = selectedImage.value;
+    if (image == null) {
+      Get.snackbar('Error', 'Photo attachment is required');
+      return;
+    }
 
-    // Clear form
-    titleController.clear();
-    descriptionController.clear();
-    locationController.clear();
-    selectedCategory.value = null;
+    final client = SClient.I;
+    final currentUser = client.auth.currentUser;
+    if (currentUser == null) {
+      Get.snackbar('Error', 'User session expired, please login again');
+      return;
+    }
 
-    // TODO: Send to Supabase
+    isSubmitting.value = true;
+
+    try {
+      final fileBytes = await File(image.path).readAsBytes();
+      final extension = image.path.split('.').last.toLowerCase();
+      final mimeType = _mimeByExtension[extension] ?? 'image/jpeg';
+      final fileName =
+          'report-${currentUser.id}-${DateTime.now().millisecondsSinceEpoch}.$extension';
+      final storagePath = 'reports/$fileName';
+
+      await client.storage
+          .from('waste-photos')
+          .uploadBinary(
+            storagePath,
+            fileBytes,
+            fileOptions: FileOptions(
+              cacheControl: '3600',
+              upsert: true,
+              contentType: mimeType,
+            ),
+          );
+
+      final publicUrl = client.storage
+          .from('waste-photos')
+          .getPublicUrl(storagePath);
+
+      await client.from('reports').insert({
+        'title': titleController.text.trim(),
+        'category': selectedCategory.value,
+        'location': locationController.text.trim(),
+        'description': descriptionController.text.trim(),
+        'image_url': publicUrl,
+        'user_id': currentUser.id,
+        'created_at': DateTime.now().toIso8601String(),
+      });
+
+      Get.snackbar('Success', 'Waste report submitted successfully');
+
+      titleController.clear();
+      descriptionController.clear();
+      locationController.clear();
+      selectedCategory.value = null;
+      selectedImage.value = null;
+    } on StorageException catch (error) {
+      Get.snackbar('Upload Failed', error.message);
+    } on PostgrestException catch (error) {
+      Get.snackbar('Database Error', error.message);
+    } catch (error) {
+      Get.snackbar('Error', 'Unexpected error: $error');
+    } finally {
+      isSubmitting.value = false;
+    }
   }
 }

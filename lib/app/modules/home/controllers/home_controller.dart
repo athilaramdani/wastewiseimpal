@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import '../../../routes/app_pages.dart';
 
 class HomeController extends GetxController {
   final currentIndex = 0.obs;
@@ -6,12 +7,7 @@ class HomeController extends GetxController {
   void onTapBottomNav(int i) {
     // Index: 0 home, 1 maps, 2 add/report, 3 leaderboard, 4 profile
     if (i == 2) {
-      // Report Waste (tengah)
-      Get.snackbar(
-        "Report Waste",
-        "Dummy action — soon connects to Supabase.",
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      Get.toNamed(Routes.REPORTWASTE);
       return;
     }
     currentIndex.value = i;
@@ -28,11 +24,7 @@ class HomeController extends GetxController {
   }
 
   void openReportWaste() {
-    Get.snackbar(
-      "Report Waste",
-      "Dummy action pressed.",
-      snackPosition: SnackPosition.BOTTOM,
-    );
+    Get.toNamed(Routes.REPORTWASTE);
   }
 
   void openNearbyBins() {

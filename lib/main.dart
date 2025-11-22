@@ -45,6 +45,13 @@ class WasteWiseApp extends StatelessWidget {
           displayColor: AppColors.textPrimary,
         ),
       ),
+      builder: (context, child) {
+        return GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+          child: child ?? const SizedBox.shrink(),
+        );
+      },
       initialRoute: AppPages.INITIAL,
       getPages: AppPages.routes,
     );

@@ -9,6 +9,10 @@ abstract class Routes {
   static const REPORTWASTE = _Paths.REPORTWASTE;
   static const HISTORY = _Paths.HISTORY;
   static const REPORT_DETAIL = _Paths.REPORT_DETAIL;
+  static const EDUCATION_DETAIL = _Paths.EDUCATION_DETAIL;
+  static const MAPS = _Paths.MAPS;
+  static const LEADERBOARD = _Paths.LEADERBOARD;
+  static const PROFILE = _Paths.PROFILE;
 }
 
 abstract class _Paths {
@@ -19,4 +23,8 @@ abstract class _Paths {
   static const REPORTWASTE = '/reportwaste';
   static const HISTORY = '/history';
   static const REPORT_DETAIL = '/report-detail';
+  static const EDUCATION_DETAIL = '/education-detail';
+  static const MAPS = '/maps';
+  static const LEADERBOARD = '/leaderboard';
+  static const PROFILE = '/profile';
 }

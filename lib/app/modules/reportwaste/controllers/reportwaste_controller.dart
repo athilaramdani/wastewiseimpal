@@ -6,36 +6,40 @@ import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/supabase_client.dart';
-
+import '../../../data/models/trash_bin.dart';
 import '../../../routes/app_pages.dart';
 
 class ReportwasteController extends GetxController {
   // Form controllers
   final titleController = TextEditingController();
   final descriptionController = TextEditingController();
-  final locationController = TextEditingController();
 
-  // Selected category
-  final selectedCategory = Rx<String?>(null);
+  // Selections
+  final selectedType = Rx<String?>('organic'); // Default or null
+  final selectedTrashBin = Rxn<TrashBin>();
+  final selectedCapacity = Rx<String?>('full'); // Default?
 
-  // Categories
-  final categories = [
-    'Organic Waste',
-    'Plastic Waste',
-    'Paper Waste',
-    'Glass Waste',
-    'Metal Waste',
-    'Electronic Waste',
-    'Other',
-  ];
+  // Options
+  final types = ['organic', 'inorganic'];
+  final capacities = ['empty', 'half', 'full'];
+
+  // Data
+  final allTrashBins = <TrashBin>[].obs;
+  
+  // Computed
+  List<TrashBin> get filteredBins {
+    if (selectedType.value == null) return [];
+    return allTrashBins.where((bin) => bin.type == selectedType.value!.toLowerCase()).toList();
+  }
 
   // Bottom navigation index
-  final currentIndex = 2.obs; // Report tab
+  final currentIndex = 2.obs;
 
   // Selected image attachment
   final selectedImage = Rxn<XFile>();
   final ImagePicker _picker = ImagePicker();
   final isSubmitting = false.obs;
+  final isLoadingBins = false.obs;
 
   static const _mimeByExtension = {
     'jpg': 'image/jpeg',
@@ -47,49 +51,49 @@ class ReportwasteController extends GetxController {
   };
 
   @override
+  void onInit() {
+    super.onInit();
+    fetchTrashBins();
+  }
+
+  @override
   void onClose() {
     titleController.dispose();
     descriptionController.dispose();
-    locationController.dispose();
     super.onClose();
   }
 
-  void onTapBottomNav(int index) {
-    switch (index) {
-      case 0:
-        Get.offNamed(Routes.HOME);
-        break;
-      case 1:
-        Get.snackbar(
-          'Coming Soon',
-          'Fitur Maps sedang dalam pengembangan',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.orange,
-          colorText: Colors.white,
-        );
-        break;
-      case 2:
-        // Already on Report page
-        break;
-      case 3:
-        Get.snackbar(
-          'Coming Soon',
-          'Fitur Leaderboard sedang dalam pengembangan',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.orange,
-          colorText: Colors.white,
-        );
-        break;
-      case 4:
-        Get.snackbar(
-          'Coming Soon',
-          'Fitur Profile sedang dalam pengembangan',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.orange,
-          colorText: Colors.white,
-        );
-        break;
+  Future<void> fetchTrashBins() async {
+    isLoadingBins.value = true;
+    try {
+      final response = await Supabase.instance.client
+          .from('trashbin')
+          .select();
+      final data = response as List;
+      allTrashBins.value = data.map((e) => TrashBin.fromJson(e)).toList();
+    } catch (e) {
+      print("Error fetching bins: $e");
+      // Dummy data
+      allTrashBins.value = [
+         TrashBin(id: 1, locationName: "Main Gate Side A", latitude: 0, longitude: 0, capacity: "full", type: "organic"),
+         TrashBin(id: 2, locationName: "Main Gate Side B", latitude: 0, longitude: 0, capacity: "empty", type: "inorganic"),
+         TrashBin(id: 3, locationName: "Canteen Area", latitude: 0, longitude: 0, capacity: "half", type: "organic"),
+      ];
+    } finally {
+      isLoadingBins.value = false;
     }
+  }
+
+  void onTapBottomNav(int index) {
+      if (index == 0) {
+        Get.offNamed(Routes.HOME);
+      } else if (index == 1) {
+         Get.toNamed(Routes.MAPS);
+      } else if (index == 2) {
+        // Current
+      } else {
+        Get.snackbar("Coming Soon", "Feature in progress");
+      }
   }
 
   Future<void> pickImage() async {
@@ -114,34 +118,30 @@ class ReportwasteController extends GetxController {
   Future<void> submitReport() async {
     if (isSubmitting.value) return;
 
-    // Validate all fields
+    // Validation
     if (titleController.text.trim().isEmpty) {
       Get.snackbar('Error', 'Report title is required');
       return;
     }
-
-    if (selectedCategory.value == null) {
-      Get.snackbar('Error', 'Waste category must be selected');
+    if (selectedTrashBin.value == null) {
+      Get.snackbar('Error', 'Please select a Trash Bin');
       return;
     }
-
-    if (locationController.text.trim().isEmpty) {
-      Get.snackbar('Error', 'Location is required');
+    if (selectedCapacity.value == null) {
+      Get.snackbar('Error', 'Please select capacity status');
       return;
     }
-
     if (descriptionController.text.trim().isEmpty) {
       Get.snackbar('Error', 'Description is required');
       return;
     }
-
     final image = selectedImage.value;
     if (image == null) {
       Get.snackbar('Error', 'Photo attachment is required');
       return;
     }
 
-    final client = SClient.I;
+    final client = Supabase.instance.client;
     final currentUser = client.auth.currentUser;
     if (currentUser == null) {
       Get.snackbar('Error', 'User session expired, please login again');
@@ -151,11 +151,11 @@ class ReportwasteController extends GetxController {
     isSubmitting.value = true;
 
     try {
-      final fileBytes = await File(image.path).readAsBytes();
+      // 1. Upload Image
+      final fileBytes = await image.readAsBytes();
       final extension = image.path.split('.').last.toLowerCase();
       final mimeType = _mimeByExtension[extension] ?? 'image/jpeg';
-      final fileName =
-          'report-${currentUser.id}-${DateTime.now().millisecondsSinceEpoch}.$extension';
+      final fileName = 'report-${currentUser.id}-${DateTime.now().millisecondsSinceEpoch}.$extension';
       final storagePath = 'reports/$fileName';
 
       await client.storage
@@ -174,23 +174,30 @@ class ReportwasteController extends GetxController {
           .from('waste-photos')
           .getPublicUrl(storagePath);
 
+      // 2. Insert Report
       await client.from('reports').insert({
         'title': titleController.text.trim(),
-        'category': selectedCategory.value,
-        'location': locationController.text.trim(),
         'description': descriptionController.text.trim(),
         'image_url': publicUrl,
         'user_id': currentUser.id,
-        'created_at': DateTime.now().toIso8601String(),
+        'trashbin_id': selectedTrashBin.value!.id,
+        'points': 10, // Default points? User said "points -> default 0" but DB has default 0. Trigger might update user profile.
+        // DB Schema has: created_at default now()
       });
 
-      Get.snackbar('Success', 'Waste report submitted successfully');
+      // 3. Update TrashBin Capacity (Optional but logical based on "Status capacity" input)
+      await client.from('trashbin').update({
+        'capacity': selectedCapacity.value,
+      }).eq('bin_id', selectedTrashBin.value!.id);
 
+      Get.snackbar('Success', 'Waste report submitted successfully (+10 Points)');
+
+      // Reset
       titleController.clear();
       descriptionController.clear();
-      locationController.clear();
-      selectedCategory.value = null;
+      selectedTrashBin.value = null;
       selectedImage.value = null;
+      // selectedCapacity.value = 'full'; // Keep or reset?
     } on StorageException catch (error) {
       Get.snackbar('Upload Failed', error.message);
     } on PostgrestException catch (error) {

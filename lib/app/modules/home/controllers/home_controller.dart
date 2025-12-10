@@ -1,5 +1,7 @@
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:latlong2/latlong.dart';
 import '../../../data/models/trash_bin.dart';
 import '../../../data/models/education.dart';
 import '../../../routes/app_pages.dart';
@@ -32,23 +34,64 @@ class HomeController extends GetxController {
   }
 
   Future<void> fetchNearbyBins() async {
-    // TODO: Real distance calculation. For now valid fetch limit 3.
     try {
+      // 1. Get User Location
+      bool serviceEnabled;
+      LocationPermission permission;
+
+      serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        // Location services are disabled.
+        print("Location services are disabled.");
+        return;
+      }
+
+      permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          print("Location permissions are denied");
+          return;
+        }
+      }
+      
+      if (permission == LocationPermission.deniedForever) {
+        print("Location permissions are permanently denied");
+        return;
+      }
+
+      final position = await Geolocator.getCurrentPosition();
+      final userLat = position.latitude;
+      final userLong = position.longitude;
+      
+      // 2. Fetch all bins (or a larger limit)
       final response = await Supabase.instance.client
           .from('trashbin')
-          .select()
-          .limit(3);
+          .select();
       
       final data = response as List;
-      nearbyBins.value = data.map((e) => TrashBin.fromJson(e)).toList();
+      final allBins = data.map((e) => TrashBin.fromJson(e)).toList();
+
+      // 3. Calculate distances
+      final Distance distance = Distance();
+      for (var bin in allBins) {
+        final meter = distance.as(
+          LengthUnit.Meter,
+          LatLng(userLat, userLong),
+          LatLng(bin.latitude, bin.longitude)
+        );
+        bin.distanceInKm = meter / 1000.0;
+      }
+
+      // 4. Sort by distance
+      allBins.sort((a, b) => (a.distanceInKm ?? double.infinity).compareTo(b.distanceInKm ?? double.infinity));
+
+      // 5. Take top 3
+      nearbyBins.value = allBins.take(3).toList();
+
     } catch (e) {
       print("Error fetching bins: $e");
-      // Fallback dummy data if DB empty or error
-      nearbyBins.value = [
-        TrashBin(id: 1, locationName: "Main Gate", latitude: 0, longitude: 0, capacity: "full", type: "organic"),
-        TrashBin(id: 2, locationName: "Library", latitude: 0, longitude: 0, capacity: "half", type: "inorganic"),
-        TrashBin(id: 3, locationName: "Canteen", latitude: 0, longitude: 0, capacity: "empty", type: "organic"),
-      ];
+      // Keep/Use fallback if necessary, but for now just log
     }
   }
 
@@ -81,11 +124,11 @@ class HomeController extends GetxController {
     if (i == 0) {
       // already home
     } else if (i == 1) {
-       Get.toNamed(Routes.MAPS); // Assuming MAPS route exists or will exist
+       Get.toNamed(Routes.MAPS);
     } else if (i == 3) {
-       // Leaderboard
+       Get.toNamed(Routes.LEADERBOARD);
     } else if (i == 4) {
-       // Profile
+       Get.toNamed(Routes.PROFILE);
     }
   }
 

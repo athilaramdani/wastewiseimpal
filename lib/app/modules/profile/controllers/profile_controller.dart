@@ -8,10 +8,45 @@ class ProfileController extends GetxController {
   final isLoading = false.obs;
   final currentIndex = 4.obs; // Profile tab
 
+  RealtimeChannel? _profileSubscription;
+
   @override
   void onInit() {
     super.onInit();
     fetchProfile();
+    _subscribeToProfile();
+  }
+
+  @override
+  void onClose() {
+    _profileSubscription?.unsubscribe();
+    super.onClose();
+  }
+
+  void _subscribeToProfile() {
+    final user = Supabase.instance.client.auth.currentUser;
+    if (user != null) {
+      _profileSubscription = Supabase.instance.client
+          .channel('public:user_profiles')
+          .onPostgresChanges(
+            event: PostgresChangeEvent.all,
+            schema: 'public',
+            table: 'user_profiles',
+            filter: PostgresChangeFilter(
+              type: PostgresChangeFilterType.eq,
+              column: 'id',
+              value: user.id,
+            ),
+            callback: (payload) {
+              // Update local state
+              print("Profile updated: ${payload.newRecord}");
+              if (payload.newRecord.isNotEmpty) {
+                 userProfile.value = payload.newRecord;
+              }
+            },
+          )
+          .subscribe();
+    }
   }
 
   Future<void> fetchProfile() async {
@@ -35,6 +70,7 @@ class ProfileController extends GetxController {
   }
 
   Future<void> logout() async {
+    _profileSubscription?.unsubscribe();
     await Supabase.instance.client.auth.signOut();
     Get.offAllNamed(Routes.LOGIN);
   }

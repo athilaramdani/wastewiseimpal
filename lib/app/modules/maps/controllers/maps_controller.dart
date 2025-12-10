@@ -5,6 +5,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../data/models/trash_bin.dart';
 import 'package:flutter/material.dart';
+import '../../../routes/app_pages.dart';
 
 class MapsController extends GetxController {
   final mapController = MapController();
@@ -70,13 +71,15 @@ class MapsController extends GetxController {
 
   void onTapBottomNav(int index) {
     if (index == 0) {
-      Get.offAllNamed('/home');
+      Get.offAllNamed(Routes.HOME);
     } else if (index == 1) {
       // Current
     } else if (index == 2) {
-      Get.toNamed('/reportwaste');
-    } else {
-      Get.snackbar("Coming Soon", "Feature in progress");
+      Get.toNamed(Routes.REPORTWASTE);
+    } else if (index == 3) {
+      Get.toNamed(Routes.LEADERBOARD);
+    } else if (index == 4) {
+      Get.toNamed(Routes.PROFILE);
     }
   }
 

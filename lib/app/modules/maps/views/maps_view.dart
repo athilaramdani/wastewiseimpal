@@ -3,13 +3,10 @@ import 'package:get/get.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../controllers/maps_controller.dart';
-import '../../../theme/app_colors.dart';
+import '../../../widgets/custom_bottom_nav.dart';
 
 class MapsView extends GetView<MapsController> {
   const MapsView({super.key});
-
-  BottomNavigationBarItem _navItem(IconData icon, String label) =>
-      BottomNavigationBarItem(icon: Icon(icon), label: label);
 
   @override
   Widget build(BuildContext context) {
@@ -117,22 +114,7 @@ class MapsView extends GetView<MapsController> {
           ],
         );
       }),
-      bottomNavigationBar: Obx(
-        () => BottomNavigationBar(
-          type: BottomNavigationBarType.fixed,
-          currentIndex: controller.currentIndex.value,
-          onTap: controller.onTapBottomNav,
-          selectedItemColor: AppColors.primary,
-          unselectedItemColor: AppColors.textSecondary,
-          items: [
-            _navItem(Icons.home_outlined, "Home"),
-            _navItem(Icons.map_outlined, "Maps"),
-            _navItem(Icons.add_circle_outline, "Report"),
-            _navItem(Icons.star_border, "Leaderboard"),
-            _navItem(Icons.person_outline, "Profile"),
-          ],
-        ),
-      ),
+      bottomNavigationBar: const CustomBottomNav(currentIndex: 1),
     );
   }
 }

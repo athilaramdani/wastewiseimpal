@@ -91,8 +91,10 @@ class ReportwasteController extends GetxController {
          Get.toNamed(Routes.MAPS);
       } else if (index == 2) {
         // Current
-      } else {
-        Get.snackbar("Coming Soon", "Feature in progress");
+      } else if (index == 3) {
+         Get.toNamed(Routes.LEADERBOARD);
+      } else if (index == 4) {
+         Get.toNamed(Routes.PROFILE);
       }
   }
 
@@ -119,8 +121,8 @@ class ReportwasteController extends GetxController {
     if (isSubmitting.value) return;
 
     // Validation
-    if (titleController.text.trim().isEmpty) {
-      Get.snackbar('Error', 'Report title is required');
+    if (titleController.text.trim().length < 5) {
+      Get.snackbar('Error', 'Report title must be at least 5 characters');
       return;
     }
     if (selectedTrashBin.value == null) {
@@ -131,8 +133,8 @@ class ReportwasteController extends GetxController {
       Get.snackbar('Error', 'Please select capacity status');
       return;
     }
-    if (descriptionController.text.trim().isEmpty) {
-      Get.snackbar('Error', 'Description is required');
+    if (descriptionController.text.trim().length < 10) {
+      Get.snackbar('Error', 'Description must be at least 10 characters');
       return;
     }
     final image = selectedImage.value;
@@ -181,11 +183,10 @@ class ReportwasteController extends GetxController {
         'image_url': publicUrl,
         'user_id': currentUser.id,
         'trashbin_id': selectedTrashBin.value!.id,
-        'points': 10, // Default points? User said "points -> default 0" but DB has default 0. Trigger might update user profile.
-        // DB Schema has: created_at default now()
+        'points': 10,
       });
 
-      // 3. Update TrashBin Capacity (Optional but logical based on "Status capacity" input)
+      // 3. Update TrashBin Capacity
       await client.from('trashbin').update({
         'capacity': selectedCapacity.value,
       }).eq('bin_id', selectedTrashBin.value!.id);
@@ -197,7 +198,6 @@ class ReportwasteController extends GetxController {
       descriptionController.clear();
       selectedTrashBin.value = null;
       selectedImage.value = null;
-      // selectedCapacity.value = 'full'; // Keep or reset?
     } on StorageException catch (error) {
       Get.snackbar('Upload Failed', error.message);
     } on PostgrestException catch (error) {

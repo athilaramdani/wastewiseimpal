@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../../../theme/app_colors.dart';
 import '../controllers/leaderboard_controller.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../../widgets/custom_bottom_nav.dart';
 
 class LeaderboardView extends GetView<LeaderboardController> {
   const LeaderboardView({super.key});
@@ -73,22 +74,7 @@ class LeaderboardView extends GetView<LeaderboardController> {
           },
         );
       }),
-      bottomNavigationBar: Obx(
-        () => BottomNavigationBar(
-          type: BottomNavigationBarType.fixed,
-          currentIndex: controller.currentIndex.value,
-          onTap: controller.onTapBottomNav,
-          selectedItemColor: AppColors.primary,
-          unselectedItemColor: AppColors.textSecondary,
-          items: [
-            _navItem(Icons.home_outlined, "Home"),
-            _navItem(Icons.map_outlined, "Maps"),
-            _navItem(Icons.add_circle_outline, "Report"),
-            _navItem(Icons.emoji_events_outlined, "Leaderboard"), // Using emoji_events instead of star_border if available? or just keep star_bar
-            _navItem(Icons.person_outline, "Profile"),
-          ],
-        ),
-      ),
+      bottomNavigationBar: const CustomBottomNav(currentIndex: 3),
     );
   }
 }

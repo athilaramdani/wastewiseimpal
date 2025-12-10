@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../data/models/education.dart';
 import '../../../theme/app_colors.dart';
+import '../../../widgets/custom_bottom_nav.dart';
 import '../controllers/home_controller.dart';
 
 class HomeView extends GetView<HomeController> {
   const HomeView({super.key});
-
-  BottomNavigationBarItem _navItem(IconData icon, String label) =>
-      BottomNavigationBarItem(icon: Icon(icon), label: label);
 
   @override
   Widget build(BuildContext context) {
@@ -220,7 +219,7 @@ class HomeView extends GetView<HomeController> {
                                   children: [
                                     Icon(Icons.location_on_outlined, size: 14, color: AppColors.textSecondary),
                                     const SizedBox(width: 4),
-                                    const Text("0.5 km", style: TextStyle(fontSize: 12, color: AppColors.textSecondary)), // Dummy distance
+                                    Text("${bin.distanceInKm?.toStringAsFixed(1) ?? '--'} km", style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
                                     const SizedBox(width: 12),
                                     Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -343,28 +342,14 @@ class HomeView extends GetView<HomeController> {
                   ),
                 );
               }),
-              const SizedBox(height: 20),            ],
+              const SizedBox(height: 20),
+            ],
           ),
         ),
       ),
 
       // Bottom Navigation (5 item)
-      bottomNavigationBar: Obx(
-        () => BottomNavigationBar(
-          type: BottomNavigationBarType.fixed,
-          currentIndex: controller.currentIndex.value,
-          onTap: controller.onTapBottomNav,
-          selectedItemColor: AppColors.primary,
-          unselectedItemColor: AppColors.textSecondary,
-          items: [
-            _navItem(Icons.home_outlined, "Home"),
-            _navItem(Icons.map_outlined, "Maps"),
-            _navItem(Icons.add_circle_outline, "Report"),
-            _navItem(Icons.star_border, "Leaderboard"),
-            _navItem(Icons.person_outline, "Profile"),
-          ],
-        ),
-      ),
+      bottomNavigationBar: const CustomBottomNav(currentIndex: 0),
     );
   }
 }

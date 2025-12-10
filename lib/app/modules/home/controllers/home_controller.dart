@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import '../../leaderboard/controllers/leaderboard_controller.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
@@ -126,6 +127,9 @@ class HomeController extends GetxController {
     } else if (i == 1) {
        Get.toNamed(Routes.MAPS);
     } else if (i == 3) {
+       if (Get.isRegistered<LeaderboardController>()) {
+          Get.find<LeaderboardController>().fetchLeaderboard();
+       }
        Get.toNamed(Routes.LEADERBOARD);
     } else if (i == 4) {
        Get.toNamed(Routes.PROFILE);

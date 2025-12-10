@@ -7,14 +7,38 @@ class LeaderboardController extends GetxController {
   final isLoading = false.obs;
   final currentIndex = 3.obs; // Leaderboard tab
 
+  RealtimeChannel? _subscription;
+
   @override
   void onInit() {
     super.onInit();
     fetchLeaderboard();
+    _subscribeToLeaderboard();
+  }
+
+  @override
+  void onClose() {
+    _subscription?.unsubscribe();
+    super.onClose();
+  }
+
+  void _subscribeToLeaderboard() {
+    _subscription = Supabase.instance.client
+        .channel('public:user_profiles')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.all,
+          schema: 'public',
+          table: 'user_profiles',
+          callback: (payload) {
+            fetchLeaderboard();
+          },
+        )
+        .subscribe();
   }
 
   Future<void> fetchLeaderboard() async {
-    isLoading.value = true;
+    // Only show loading indicator on initial load to avoid flickering updates
+    if (leaderboard.isEmpty) isLoading.value = true;
     try {
       final response = await Supabase.instance.client
           .from('user_profiles')

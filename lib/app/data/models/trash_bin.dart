@@ -5,6 +5,7 @@ class TrashBin {
   final double longitude;
   final String capacity; // 'empty', 'half', 'full'
   final String type; // 'organic', 'inorganic'
+  double? distanceInKm; // Mutable field for UI display
 
   TrashBin({
     required this.id,
@@ -13,6 +14,7 @@ class TrashBin {
     required this.longitude,
     required this.capacity,
     required this.type,
+    this.distanceInKm,
   });
 
   factory TrashBin.fromJson(Map<String, dynamic> json) {

@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import '../../../theme/app_colors.dart';
 import '../controllers/reportwaste_controller.dart';
 import '../../../data/models/trash_bin.dart';
+import '../../../widgets/custom_bottom_nav.dart';
 
 class ReportwasteView extends GetView<ReportwasteController> {
   const ReportwasteView({super.key});
@@ -370,22 +371,7 @@ class ReportwasteView extends GetView<ReportwasteController> {
             ),
           ),
         ),
-        bottomNavigationBar: Obx(
-          () => BottomNavigationBar(
-            type: BottomNavigationBarType.fixed,
-            currentIndex: controller.currentIndex.value,
-            onTap: controller.onTapBottomNav,
-            selectedItemColor: AppColors.primary,
-            unselectedItemColor: AppColors.textSecondary,
-            items: [
-              _navItem(Icons.home_outlined, 'Home'),
-              _navItem(Icons.map_outlined, 'Maps'),
-              _navItem(Icons.add_circle_outline, 'Report'),
-              _navItem(Icons.star_border, 'Leaderboard'),
-              _navItem(Icons.person_outline, 'Profile'),
-            ],
-          ),
-        ),
+      bottomNavigationBar: const CustomBottomNav(currentIndex: 2),
       ),
     );
   }

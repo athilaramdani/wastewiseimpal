@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../theme/app_colors.dart';
 import '../controllers/profile_controller.dart';
+import '../../../widgets/custom_bottom_nav.dart';
 
 class ProfileView extends GetView<ProfileController> {
   const ProfileView({super.key});
@@ -133,22 +134,7 @@ class ProfileView extends GetView<ProfileController> {
           ),
         );
       }),
-      bottomNavigationBar: Obx(
-        () => BottomNavigationBar(
-          type: BottomNavigationBarType.fixed,
-          currentIndex: controller.currentIndex.value,
-          onTap: controller.onTapBottomNav,
-          selectedItemColor: AppColors.primary,
-          unselectedItemColor: AppColors.textSecondary,
-          items: [
-            _navItem(Icons.home_outlined, "Home"),
-            _navItem(Icons.map_outlined, "Maps"),
-            _navItem(Icons.add_circle_outline, "Report"),
-            _navItem(Icons.emoji_events_outlined, "Leaderboard"),
-            _navItem(Icons.person_outline, "Profile"),
-          ],
-        ),
-      ),
+      bottomNavigationBar: const CustomBottomNav(currentIndex: 4),
     );
   }
 }

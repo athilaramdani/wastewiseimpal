@@ -264,7 +264,7 @@ class HomeView extends GetView<HomeController> {
                   return const SizedBox.shrink();
                 }
                 return SizedBox(
-                  height: 220,
+                  height: 280,
                   child: ListView.separated(
                     scrollDirection: Axis.horizontal,
                     itemCount: controller.educationList.length,

@@ -8,6 +8,10 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/supabase_client.dart';
 import '../../../data/models/trash_bin.dart';
 import '../../../routes/app_pages.dart';
+import '../../leaderboard/controllers/leaderboard_controller.dart';
+import '../../home/controllers/home_controller.dart';
+import '../../maps/controllers/maps_controller.dart';
+import '../../profile/controllers/profile_controller.dart';
 
 class ReportwasteController extends GetxController {
   // Form controllers
@@ -84,6 +88,7 @@ class ReportwasteController extends GetxController {
     }
   }
 
+
   void onTapBottomNav(int index) {
       if (index == 0) {
         Get.offNamed(Routes.HOME);
@@ -92,6 +97,9 @@ class ReportwasteController extends GetxController {
       } else if (index == 2) {
         // Current
       } else if (index == 3) {
+         if (Get.isRegistered<LeaderboardController>()) {
+            Get.find<LeaderboardController>().fetchLeaderboard();
+         }
          Get.toNamed(Routes.LEADERBOARD);
       } else if (index == 4) {
          Get.toNamed(Routes.PROFILE);
@@ -183,7 +191,7 @@ class ReportwasteController extends GetxController {
         'image_url': publicUrl,
         'user_id': currentUser.id,
         'trashbin_id': selectedTrashBin.value!.id,
-        'points': 10,
+        'points': 5, // Changed to 5 because DB trigger seems to add 5 bonus points, resulting in total 10.
       });
 
       // 3. Update TrashBin Capacity
@@ -198,6 +206,21 @@ class ReportwasteController extends GetxController {
       descriptionController.clear();
       selectedTrashBin.value = null;
       selectedImage.value = null;
+
+      // Force refresh other controllers
+      if (Get.isRegistered<HomeController>()) {
+        Get.find<HomeController>().fetchNearbyBins();
+      }
+      if (Get.isRegistered<ProfileController>()) {
+        Get.find<ProfileController>().fetchProfile();
+      }
+      if (Get.isRegistered<MapsController>()) {
+        Get.find<MapsController>().fetchTrashBins();
+      }
+      if (Get.isRegistered<LeaderboardController>()) {
+        Get.find<LeaderboardController>().fetchLeaderboard();
+      }
+
     } on StorageException catch (error) {
       Get.snackbar('Upload Failed', error.message);
     } on PostgrestException catch (error) {

@@ -88,6 +88,16 @@ class ReportwasteView extends GetView<ReportwasteController> {
                     color: AppColors.textPrimary,
                   ),
                 ),
+                const Padding(
+                  padding: EdgeInsets.only(top: 4),
+                  child: Text(
+                    'Supported: JPG, PNG, WEBP',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 8),
                 Obx(() {
                   final image = controller.selectedImage.value;

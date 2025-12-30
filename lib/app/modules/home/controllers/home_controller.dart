@@ -43,7 +43,7 @@ class HomeController extends GetxController {
       serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
         // Location services are disabled.
-        print("Location services are disabled.");
+        Get.snackbar("Location Disabled", "Please enable location services to find nearby bins.");
         return;
       }
 
@@ -57,7 +57,7 @@ class HomeController extends GetxController {
       }
       
       if (permission == LocationPermission.deniedForever) {
-        print("Location permissions are permanently denied");
+        Get.snackbar("Permission Denied", "Location permission is permanently denied. Please enable it in settings.");
         return;
       }
 
@@ -91,6 +91,7 @@ class HomeController extends GetxController {
       nearbyBins.value = allBins.take(3).toList();
 
     } catch (e) {
+      Get.snackbar("Error", "Failed to load nearby bins");
       print("Error fetching bins: $e");
       // Keep/Use fallback if necessary, but for now just log
     }

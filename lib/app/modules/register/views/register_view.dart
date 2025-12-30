@@ -71,6 +71,7 @@ class RegisterView extends GetView<RegisterController> {
                       decoration: InputDecoration(
                         labelText: "Password",
                         hintText: "Enter your password",
+                        helperText: "Minimum 6 characters",
                         prefixIcon: const Icon(Icons.lock_outline),
                         suffixIcon: IconButton(
                           onPressed: controller.togglePass,

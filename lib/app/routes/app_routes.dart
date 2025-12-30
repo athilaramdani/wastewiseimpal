@@ -13,6 +13,7 @@ abstract class Routes {
   static const MAPS = _Paths.MAPS;
   static const LEADERBOARD = _Paths.LEADERBOARD;
   static const PROFILE = _Paths.PROFILE;
+  static const SPLASH = _Paths.SPLASH;
 }
 
 abstract class _Paths {
@@ -27,4 +28,5 @@ abstract class _Paths {
   static const MAPS = '/maps';
   static const LEADERBOARD = '/leaderboard';
   static const PROFILE = '/profile';
+  static const SPLASH = '/splash';
 }

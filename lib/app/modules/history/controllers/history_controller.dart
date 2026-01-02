@@ -33,7 +33,7 @@ class HistoryController extends GetxController {
 
       final List<dynamic> result = await client
           .from('reports')
-          .select('*')
+          .select('*, trashbin(*)')
           .eq('user_id', currentUser.id)
           .order('created_at', ascending: false);
 

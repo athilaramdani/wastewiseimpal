@@ -29,8 +29,12 @@ class ReportRecord {
     return ReportRecord(
       id: map['id']?.toString(),
       title: map['title']?.toString() ?? '',
-      category: map['category']?.toString() ?? '-',
-      location: map['location']?.toString() ?? '-',
+      category: (map['trashbin'] != null && map['trashbin'] is Map)
+          ? map['trashbin']['type']?.toString() ?? '-'
+          : map['category']?.toString() ?? '-',
+      location: (map['trashbin'] != null && map['trashbin'] is Map)
+          ? map['trashbin']['location_name']?.toString() ?? '-'
+          : map['location']?.toString() ?? '-',
       description: map['description']?.toString() ?? '-',
       imageUrl: map['image_url']?.toString() ?? '',
       createdAt: created,

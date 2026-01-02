@@ -1,8 +1,9 @@
 # 🌿 WasteWise
 **WasteWise** adalah aplikasi Flutter berbasis *GetX* yang bertujuan membantu pengguna untuk melaporkan lokasi sampah, menemukan tempat sampah terdekat, dan mendapatkan edukasi lingkungan secara praktis.
-
 ---
-
+Download Apps Disini:
+https://drive.google.com/file/d/1W8NmsHu6HAs2BGNNpzfqsofKlM-KmGpE/view?usp=drive_link
+---
 ## 🧱 Tech Stack
 | Komponen | Teknologi yang Digunakan |
 |-----------|---------------------------|

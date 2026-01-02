@@ -29,11 +29,13 @@ class ReportwasteController extends GetxController {
 
   // Data
   final allTrashBins = <TrashBin>[].obs;
-  
+
   // Computed
   List<TrashBin> get filteredBins {
     if (selectedType.value == null) return [];
-    return allTrashBins.where((bin) => bin.type == selectedType.value!.toLowerCase()).toList();
+    return allTrashBins
+        .where((bin) => bin.type == selectedType.value!.toLowerCase())
+        .toList();
   }
 
   // Bottom navigation index
@@ -70,40 +72,58 @@ class ReportwasteController extends GetxController {
   Future<void> fetchTrashBins() async {
     isLoadingBins.value = true;
     try {
-      final response = await Supabase.instance.client
-          .from('trashbin')
-          .select();
+      final response = await Supabase.instance.client.from('trashbin').select();
       final data = response as List;
       allTrashBins.value = data.map((e) => TrashBin.fromJson(e)).toList();
     } catch (e) {
       print("Error fetching bins: $e");
       // Dummy data
       allTrashBins.value = [
-         TrashBin(id: 1, locationName: "Main Gate Side A", latitude: 0, longitude: 0, capacity: "full", type: "organic"),
-         TrashBin(id: 2, locationName: "Main Gate Side B", latitude: 0, longitude: 0, capacity: "empty", type: "inorganic"),
-         TrashBin(id: 3, locationName: "Canteen Area", latitude: 0, longitude: 0, capacity: "half", type: "organic"),
+        TrashBin(
+          id: 1,
+          locationName: "Main Gate Side A",
+          latitude: 0,
+          longitude: 0,
+          capacity: "full",
+          type: "organic",
+        ),
+        TrashBin(
+          id: 2,
+          locationName: "Main Gate Side B",
+          latitude: 0,
+          longitude: 0,
+          capacity: "empty",
+          type: "inorganic",
+        ),
+        TrashBin(
+          id: 3,
+          locationName: "Canteen Area",
+          latitude: 0,
+          longitude: 0,
+          capacity: "half",
+          type: "organic",
+        ),
       ];
     } finally {
       isLoadingBins.value = false;
     }
   }
 
-
   void onTapBottomNav(int index) {
-      if (index == 0) {
-        Get.offNamed(Routes.HOME);
-      } else if (index == 1) {
-         Get.toNamed(Routes.MAPS);
-      } else if (index == 2) {
-        // Current
-      } else if (index == 3) {
-         if (Get.isRegistered<LeaderboardController>()) {
-            Get.find<LeaderboardController>().fetchLeaderboard();
-         }
-         Get.toNamed(Routes.LEADERBOARD);
-      } else if (index == 4) {
-         Get.toNamed(Routes.PROFILE);
+    if (index == 0) {
+      Get.offNamed(Routes.HOME);
+    } else if (index == 1) {
+      Get.toNamed(Routes.MAPS);
+    } else if (index == 2) {
+      // Current
+    } else if (index == 3) {
+      if (Get.isRegistered<LeaderboardController>()) {
+        Get.find<LeaderboardController>().fetchLeaderboard();
       }
+      Get.toNamed(Routes.LEADERBOARD);
+    } else if (index == 4) {
+      Get.toNamed(Routes.PROFILE);
+    }
   }
 
   Future<void> pickImage() async {
@@ -165,7 +185,8 @@ class ReportwasteController extends GetxController {
       final fileBytes = await image.readAsBytes();
       final extension = image.path.split('.').last.toLowerCase();
       final mimeType = _mimeByExtension[extension] ?? 'image/jpeg';
-      final fileName = 'report-${currentUser.id}-${DateTime.now().millisecondsSinceEpoch}.$extension';
+      final fileName =
+          'report-${currentUser.id}-${DateTime.now().millisecondsSinceEpoch}.$extension';
       final storagePath = 'reports/$fileName';
 
       await client.storage
@@ -191,15 +212,20 @@ class ReportwasteController extends GetxController {
         'image_url': publicUrl,
         'user_id': currentUser.id,
         'trashbin_id': selectedTrashBin.value!.id,
-        'points': 5, // Changed to 5 because DB trigger seems to add 5 bonus points, resulting in total 10.
+        'points':
+            5, // Changed to 5 because DB trigger seems to add 5 bonus points, resulting in total 10.
       });
 
       // 3. Update TrashBin Capacity
-      await client.from('trashbin').update({
-        'capacity': selectedCapacity.value,
-      }).eq('bin_id', selectedTrashBin.value!.id);
+      await client
+          .from('trashbin')
+          .update({'capacity': selectedCapacity.value})
+          .eq('bin_id', selectedTrashBin.value!.id);
 
-      Get.snackbar('Success', 'Waste report submitted successfully (+10 Points)');
+      Get.snackbar(
+        'Success',
+        'Waste report submitted successfully (+10 Points)',
+      );
 
       // Reset
       titleController.clear();
@@ -220,7 +246,6 @@ class ReportwasteController extends GetxController {
       if (Get.isRegistered<LeaderboardController>()) {
         Get.find<LeaderboardController>().fetchLeaderboard();
       }
-
     } on StorageException catch (error) {
       Get.snackbar('Upload Failed', error.message);
     } on PostgrestException catch (error) {

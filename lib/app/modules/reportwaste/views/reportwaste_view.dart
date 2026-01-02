@@ -136,15 +136,16 @@ class ReportwasteView extends GetView<ReportwasteController> {
                                   children: [
                                     ClipRRect(
                                       borderRadius: BorderRadius.circular(14),
-                                      child: kIsWeb
-                                          ? Image.network(
-                                              image.path,
-                                              fit: BoxFit.cover,
-                                            )
-                                          : Image.file(
-                                              File(image.path),
-                                              fit: BoxFit.cover,
-                                            ),
+                                      child:
+                                          kIsWeb
+                                              ? Image.network(
+                                                image.path,
+                                                fit: BoxFit.cover,
+                                              )
+                                              : Image.file(
+                                                File(image.path),
+                                                fit: BoxFit.cover,
+                                              ),
                                     ),
                                     Positioned(
                                       top: 8,
@@ -201,28 +202,39 @@ class ReportwasteView extends GetView<ReportwasteController> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                Obx(() => Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  decoration: BoxDecoration(
-                    color: AppColors.inputFill,
-                    border: Border.all(color: AppColors.inputBorder),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<String>(
-                      isExpanded: true,
-                      value: controller.selectedType.value,
-                      items: controller.types.map((type) => DropdownMenuItem(
-                        value: type,
-                        child: Text(type.capitalizeFirst!, style: const TextStyle(fontSize: 14)),
-                      )).toList(),
-                      onChanged: (val) {
-                        controller.selectedType.value = val;
-                        controller.selectedTrashBin.value = null; // Reset bin on type change
-                      },
+                Obx(
+                  () => Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: AppColors.inputFill,
+                      border: Border.all(color: AppColors.inputBorder),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        isExpanded: true,
+                        value: controller.selectedType.value,
+                        items:
+                            controller.types
+                                .map(
+                                  (type) => DropdownMenuItem(
+                                    value: type,
+                                    child: Text(
+                                      type.capitalizeFirst!,
+                                      style: const TextStyle(fontSize: 14),
+                                    ),
+                                  ),
+                                )
+                                .toList(),
+                        onChanged: (val) {
+                          controller.selectedType.value = val;
+                          controller.selectedTrashBin.value =
+                              null; // Reset bin on type change
+                        },
+                      ),
                     ),
                   ),
-                )),
+                ),
                 const SizedBox(height: 20),
 
                 // Trash Bin Selection
@@ -236,11 +248,11 @@ class ReportwasteView extends GetView<ReportwasteController> {
                 ),
                 const SizedBox(height: 8),
                 Obx(() {
-                   if (controller.isLoadingBins.value) {
-                     return const Center(child: CircularProgressIndicator());
-                   }
-                   final bins = controller.filteredBins;
-                   return Container(
+                  if (controller.isLoadingBins.value) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  final bins = controller.filteredBins;
+                  return Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     decoration: BoxDecoration(
                       color: AppColors.inputFill,
@@ -252,11 +264,20 @@ class ReportwasteView extends GetView<ReportwasteController> {
                         isExpanded: true,
                         hint: const Text("Select a bin"),
                         value: controller.selectedTrashBin.value,
-                        items: bins.map((bin) => DropdownMenuItem(
-                          value: bin,
-                          child: Text(bin.locationName, style: const TextStyle(fontSize: 14)),
-                        )).toList(),
-                        onChanged: (val) => controller.selectedTrashBin.value = val,
+                        items:
+                            bins
+                                .map(
+                                  (bin) => DropdownMenuItem(
+                                    value: bin,
+                                    child: Text(
+                                      bin.locationName,
+                                      style: const TextStyle(fontSize: 14),
+                                    ),
+                                  ),
+                                )
+                                .toList(),
+                        onChanged:
+                            (val) => controller.selectedTrashBin.value = val,
                       ),
                     ),
                   );
@@ -273,41 +294,64 @@ class ReportwasteView extends GetView<ReportwasteController> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                Obx(() => Row(
-                  children: controller.capacities.map((capacity) {
-                    final isSelected = controller.selectedCapacity.value == capacity;
-                    Color color;
-                    switch(capacity) {
-                      case 'full': color = AppColors.danger; break;
-                      case 'half': color = AppColors.warning; break;
-                      default: color = AppColors.success;
-                    }
-                    return Expanded(
-                      child: GestureDetector(
-                        onTap: () => controller.selectedCapacity.value = capacity,
-                        child: Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 4),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          decoration: BoxDecoration(
-                            color: isSelected ? color : color.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: isSelected ? color : Colors.transparent, width: 2),
-                          ),
-                          child: Center(
-                            child: Text(
-                              capacity.capitalizeFirst!,
-                              style: TextStyle(
-                                color: isSelected ? Colors.white : color,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13,
+                Obx(
+                  () => Row(
+                    children:
+                        controller.capacities.map((capacity) {
+                          final isSelected =
+                              controller.selectedCapacity.value == capacity;
+                          Color color;
+                          switch (capacity) {
+                            case 'full':
+                              color = AppColors.danger;
+                              break;
+                            case 'half':
+                              color = AppColors.warning;
+                              break;
+                            default:
+                              color = AppColors.success;
+                          }
+                          return Expanded(
+                            child: GestureDetector(
+                              onTap:
+                                  () =>
+                                      controller.selectedCapacity.value =
+                                          capacity,
+                              child: Container(
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 4,
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 12,
+                                ),
+                                decoration: BoxDecoration(
+                                  color:
+                                      isSelected
+                                          ? color
+                                          : color.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color:
+                                        isSelected ? color : Colors.transparent,
+                                    width: 2,
+                                  ),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    capacity.capitalizeFirst!,
+                                    style: TextStyle(
+                                      color: isSelected ? Colors.white : color,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                )),
+                          );
+                        }).toList(),
+                  ),
+                ),
                 const SizedBox(height: 20),
 
                 const Text(
@@ -381,7 +425,7 @@ class ReportwasteView extends GetView<ReportwasteController> {
             ),
           ),
         ),
-      bottomNavigationBar: const CustomBottomNav(currentIndex: 2),
+        bottomNavigationBar: const CustomBottomNav(currentIndex: 2),
       ),
     );
   }

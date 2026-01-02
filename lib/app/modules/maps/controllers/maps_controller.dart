@@ -21,35 +21,57 @@ class MapsController extends GetxController {
   }
 
   Future<void> _checkPermissionAndLocate() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      Get.snackbar("Location", "Location services are disabled.");
-      return;
-    }
-
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        Get.snackbar("Location", "Location permissions are denied");
+    try {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        Get.snackbar(
+          "Location",
+          "Location services are disabled.",
+          snackPosition: SnackPosition.BOTTOM,
+        );
         return;
       }
-    }
 
-    if (permission == LocationPermission.deniedForever) {
-      Get.snackbar("Location", "Location permissions are permanently denied, we cannot request permissions.");
-      return;
-    }
+      LocationPermission permission = await Geolocator.checkPermission();
 
-    // Get current position
-    final pos = await Geolocator.getCurrentPosition();
-    userPosition.value = LatLng(pos.latitude, pos.longitude);
-    
-    // Auto move map?
-    // mapController.move(userPosition.value!, 15);
+      // Request permission jika belum ada
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+
+        if (permission == LocationPermission.denied) {
+          Get.snackbar(
+            "Location",
+            "Location permission is required to show your position",
+            snackPosition: SnackPosition.BOTTOM,
+          );
+          return;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        Get.snackbar(
+          "Location",
+          "Please enable location permission in app settings",
+          snackPosition: SnackPosition.BOTTOM,
+          duration: Duration(seconds: 4),
+        );
+        return;
+      }
+
+      // Get current position
+      final pos = await Geolocator.getCurrentPosition();
+      userPosition.value = LatLng(pos.latitude, pos.longitude);
+
+      // Auto move map?
+      // mapController.move(userPosition.value!, 15);
+    } catch (e) {
+      print("Error getting location: $e");
+      Get.snackbar(
+        "Error",
+        "Failed to get location: $e",
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
   }
 
   Future<void> fetchTrashBins() async {
@@ -61,12 +83,26 @@ class MapsController extends GetxController {
       print("Error fetching bins: $e");
       // Dummy
       trashBins.value = [
-        TrashBin(id: 1, locationName: "Bin A", latitude: -6.973, longitude: 107.63, capacity: "full", type: "organic"),
-        TrashBin(id: 2, locationName: "Bin B", latitude: -6.975, longitude: 107.632, capacity: "half", type: "inorganic"),
+        TrashBin(
+          id: 1,
+          locationName: "Bin A",
+          latitude: -6.973,
+          longitude: 107.63,
+          capacity: "full",
+          type: "organic",
+        ),
+        TrashBin(
+          id: 2,
+          locationName: "Bin B",
+          latitude: -6.975,
+          longitude: 107.632,
+          capacity: "half",
+          type: "inorganic",
+        ),
       ];
     }
   }
-  
+
   final currentIndex = 1.obs;
 
   void onTapBottomNav(int index) {
@@ -86,10 +122,13 @@ class MapsController extends GetxController {
   // Helper for color
   Color getBinColor(String capacity) {
     switch (capacity.toLowerCase()) {
-      case 'full': return Colors.red;
-      case 'half': 
-      case 'almost full': return Colors.yellow; // or Orange
-      default: return Colors.green;
+      case 'full':
+        return Colors.red;
+      case 'half':
+      case 'almost full':
+        return Colors.yellow; // or Orange
+      default:
+        return Colors.green;
     }
   }
 }
